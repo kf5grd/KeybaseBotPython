@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import random
-import re
 import shlex
 import subprocess
 import time
@@ -27,7 +26,6 @@ def check_command(message):
     # 3 = pm response
     # 4 = pm <user> response.
 
-
     if command[0].lower() == '!uptime' and len(command) == 1:
         uptime = subprocess.check_output(["uptime"]).decode('utf-8')
         return [1, uptime]
@@ -37,11 +35,11 @@ def check_command(message):
         try:
             num_of_dice = int(command[1])
             num_of_sides = int(command[2]) + 1
-        except:
+        except ValueError:
             num_of_dice = 0
             num_of_sides = 0
         if (num_of_dice not in range(1, 11) or
-            num_of_sides not in range(3, 101)):
+                num_of_sides not in range(3, 101)):
             num_of_dice = 2
             num_of_sides = 7
         dice = []
@@ -90,8 +88,10 @@ if __name__ == '__main__':
         # Respond to team messages
         teams = [team for team in conversations['teams'] if team in channels]
         for team in teams:
-            unread_channels = [channel for channel in channels[team]
-                    if conversations['teams'][team][channel]['unread']]
+            unread_channels = [
+                    channel for channel in channels[team]
+                    if conversations['teams'][team][channel]['unread']
+                    ]
             for channel in unread_channels:
                 messages = kb.get_team_messages(team, channel=channel)
                 for key, message in messages.items():
@@ -134,8 +134,10 @@ if __name__ == '__main__':
                             kb.send_user_message(user, msg)
 
         # Respond to individual messages
-        users = [user for user in conversations['individuals']
-                        if conversations['individuals'][user]['unread']]
+        users = [
+                user for user in conversations['individuals']
+                if conversations['individuals'][user]['unread']
+                ]
         for user in users:
             messages = kb.get_user_messages(user)
             for key, message in messages.items():
