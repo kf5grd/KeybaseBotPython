@@ -34,12 +34,9 @@ class KeybaseChat:
 
     def _get_username(self):
         """Return the username of the current user from the keybase CLI."""
-        keybase_status = subprocess.check_output(['keybase', 'status'],
-                                                 universal_newlines=True)
-        for line in keybase_status.split('\n'):
-            if line.startswith('Username'):
-                return line.split(' ')[-1]
-        return None
+        command = subprocess.check_output(['keybase', 'status', '-j'])
+        keybase_status = json.loads(command.decode('utf-8'))
+        return keybase_status.get('Username')
 
     def get_conversations(self):
         '''Return a dictionary with all active conversations.
