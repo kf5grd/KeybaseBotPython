@@ -319,7 +319,11 @@ class KeybaseBot:
                             'channel': channel
                             }
                     if respond:
-                        if split(message['body'])[0] in self.get_commands():
+                        try:
+                            found_cmd = split(message['body'])[0]
+                        except ValueError:
+                            found_cmd = message['body']
+                        if found_cmd in self.get_commands():
                             trigger = split(message['body'])[0]
                             trigger_func = self.get_commands()[trigger]['f']
                             print('-' * 15)
@@ -345,7 +349,11 @@ class KeybaseBot:
                         'sender': message['sender']
                         }
                 if respond:
-                    if split(message['body'])[0] in self.get_commands():
+                    try:
+                        found_cmd = split(message['body'])[0]
+                    except ValueError:
+                        found_cmd = message['body']
+                    if found_cmd in self.get_commands():
                         trigger = split(message['body'])[0]
                         trigger_func = self.get_commands()[trigger]['f']
                         print('-' * 15)
