@@ -358,11 +358,10 @@ class KeybaseBot:
         if message_data['type'] == 'team':
             _at = ''
             if at_mention:
-                _at = '@'
+                _at = '@{}, '.format(message_data['sender'])
             res = self.kb.send_team_message(message_data['team'],
-                                            '{}{}, {}'.format(
+                                            '{}{}'.format(
                                                 _at,
-                                                message_data['sender'],
                                                 response_text),
                                             channel=message_data['channel'])
         elif message_data['type'] == 'individual':
