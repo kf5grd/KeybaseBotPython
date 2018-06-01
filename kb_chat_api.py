@@ -257,5 +257,141 @@ class KeybaseChat:
         return response
 
 
+class KeybaseBot:
+    def __init__(self, keybase_api, channels, help_command='!help'):
+        self.command = self._command_registry()
+        self.kb = keybase_api
+        self.channels = channels
+        self._commands[help_command] = {
+                'f': self.help_cmd,
+                'command': help_command,
+                'args': None,
+                'help': self.help_cmd.__doc__
+                }
+        self.commands = self.get_commands()
+
+    def _command_registry(self, *args):
+        self._commands = {}
+
+        def make_command(*args, **kwargs):
+            try:
+                cmd = args[0]
+            except IndexError:
+                raise ValueError('Must provide command trigger')
+            cmd_args = kwargs.get('args')
+
+            def decorator(func, *args, **kwargs):
+                def wrapper(func):
+                    self._command_name = cmd
+                    self._commands[self._command_name] = {}
+                    self._commands[self._command_name]['f'] = func
+                    self._commands[self._command_name]['command'] = cmd
+                    self._commands[self._command_name]['args'] = cmd_args
+                    self._commands[self._command_name]['help'] = func.__doc__
+                    return func
+                return wrapper(func)
+            return decorator
+        return make_command
+
+    def get_commands(self):
+        return self._commands.copy()
+
+    def check_messages(self, respond=True):
+        conversations = self.kb.get_conversations()
+
+        # Respond to team messages
+        teams = [team for team in conversations['teams']
+                 if team in self.channels]
+        for team in teams:
+            unread_channels = [
+                    channel for channel in self.channels[team]
+                    if conversations['teams'][team][channel]['unread']
+                    ]
+            for channel in unread_channels:
+                messages = self.kb.get_team_messages(team, channel=channel)
+                for key, message in messages.items():
+                    # message information
+                    message_data = {
+                            'type': 'team',
+                            'body': message['body'],
+                            'sender': message['sender'],
+                            'team': team,
+                            'channel': channel
+                            }
+                    if respond:
+                        if split(message['body'])[0] in self.get_commands():
+                            trigger = split(message['body'])[0]
+                            trigger_func = self.get_commands()[trigger]['f']
+                            print('-' * 15)
+                            print('Trigger found: {}'.format(trigger))
+                            print('  Team: {}'.format(team))
+                            print('  Channel: {}'.format(channel))
+                            print('  Sender: {}'.format(message['sender']))
+                            result = trigger_func(message_data)
+                            print('  Result: {}'.format(result))
+
+        # Respond to private messages
+        users = [
+                user for user in conversations['individuals']
+                if conversations['individuals'][user]['unread']
+                ]
+        for user in users:
+            messages = self.kb.get_user_messages(user)
+            for key, message in messages.items():
+                # message information
+                message_data = {
+                        'type': 'individual',
+                        'body': message['body'],
+                        'sender': message['sender']
+                        }
+                if respond:
+                    if split(message['body'])[0] in self.get_commands():
+                        trigger = split(message['body'])[0]
+                        trigger_func = self.get_commands()[trigger]['f']
+                        print('-' * 15)
+                        print('Trigger found: {}'.format(trigger))
+                        print('  Sender: {}'.format(message['sender']))
+                        result = trigger_func(message_data)
+                        print('  Result: {}'.format(result))
+
+    def respond(self, response_text, message_data, at_mention=False):
+        if message_data['type'] == 'team':
+            _at = ''
+            if at_mention:
+                _at = '@'
+            res = self.kb.send_team_message(message_data['team'],
+                                            '{}{}, {}'.format(
+                                                _at,
+                                                message_data['sender'],
+                                                response_text),
+                                            channel=message_data['channel'])
+        elif message_data['type'] == 'individual':
+            res = self.kb.send_user_message(message_data['sender'],
+                                            response_text)
+        return json.dumps(res)
+
+    def help_cmd(self, message_data):
+        '''Show available commands'''
+        help_text = ''
+        all_cmds = self.get_commands()
+        for cmd in all_cmds:
+            trigger = all_cmds[cmd]['command']
+            cmd_help = all_cmds[cmd]['help']
+            if all_cmds[cmd]['args']:
+                args = ' {}'.format(all_cmds[cmd]['args'])
+            else:
+                args = ''
+            help_text += '`{}{}`\n'.format(trigger, args)
+            help_text += '```    {}```\n\n'.format(cmd_help)
+        if message_data['type'] == 'team':
+            res = self.kb.send_team_message(message_data['team'],
+                                            help_text,
+                                            channel=message_data['channel'])
+        elif message_data['type'] == 'individual':
+            res = self.kb.send_user_message(message_data['sender'],
+                                            help_text)
+        return json.dumps(res)
+
+
 if __name__ == '__main__':
     pass
