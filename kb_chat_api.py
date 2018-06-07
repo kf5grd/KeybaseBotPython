@@ -330,19 +330,10 @@ class KeybaseBot:
                             'channel': channel
                             }
                     if respond:
-<<<<<<< HEAD
-                        try:
-                            found_cmd = split(message['body'])[0]
-                        except ValueError:
-                            found_cmd = message['body']
-                        if found_cmd in self.get_commands():
-                            trigger = split(message['body'])[0]
-=======
                         found_cmds = [cmd for cmd in self.get_commands()
                                       if re.search(cmd, message['body'])]
                         if len(found_cmds) > 0:
                             trigger = found_cmds[0]
->>>>>>> changed triggers to be regex based, and added option to hide trigger from help text
                             trigger_func = self.get_commands()[trigger]['f']
                             print('-' * 15)
                             print('Trigger found: {}'.format(trigger))
@@ -368,20 +359,11 @@ class KeybaseBot:
                         'sender': message['sender']
                         }
                 if respond:
-<<<<<<< HEAD
-                    try:
-                        found_cmd = split(message['body'])[0]
-                    except ValueError:
-                        found_cmd = message['body']
-                    if found_cmd in self.get_commands():
-                        trigger = split(message['body'])[0]
-=======
                     found_cmds = [cmd for cmd in self.get_commands()
                                   if re.search(cmd, message['body'])]
                     #for trigger in self.get_commands():
                     if len(found_cmds) > 0:
                         trigger = found_cmds[0]
->>>>>>> changed triggers to be regex based, and added option to hide trigger from help text
                         trigger_func = self.get_commands()[trigger]['f']
                         print('-' * 15)
                         print('Trigger found: {}'.format(trigger))
