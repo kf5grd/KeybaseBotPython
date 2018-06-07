@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import json
+import re
 import subprocess
 
 from shlex import split
@@ -258,35 +259,45 @@ class KeybaseChat:
 
 
 class KeybaseBot:
-    def __init__(self, keybase_api, channels, help_command='!help'):
+    def __init__(self,
+                 keybase_api,
+                 channels,
+                 help_command='^!help',
+                 help_trigger='!help'):
+        self._help_trigger = help_trigger
         self.command = self._command_registry()
         self.kb = keybase_api
         self.channels = channels
         self._commands[help_command] = {
                 'f': self.help_cmd,
                 'command': help_command,
-                'args': None,
+                'help_trigger': help_trigger,
+                'show_help': True,
                 'help': self.help_cmd.__doc__
                 }
         self.commands = self.get_commands()
 
     def _command_registry(self, *args):
         self._commands = {}
+        self._commands_list = [self._help_trigger]
 
         def make_command(*args, **kwargs):
             try:
                 cmd = args[0]
             except IndexError:
                 raise ValueError('Must provide command trigger')
-            cmd_args = kwargs.get('args')
+            help_trigger = kwargs.get('help_trigger', cmd)
+            show_help = kwargs.get('show_help', True)
 
             def decorator(func, *args, **kwargs):
                 def wrapper(func):
                     self._command_name = cmd
+                    self._commands_list.append(self._command_name)
                     self._commands[self._command_name] = {}
                     self._commands[self._command_name]['f'] = func
                     self._commands[self._command_name]['command'] = cmd
-                    self._commands[self._command_name]['args'] = cmd_args
+                    self._commands[self._command_name]['help_trigger'] = help_trigger
+                    self._commands[self._command_name]['show_help'] = show_help
                     self._commands[self._command_name]['help'] = func.__doc__
                     return func
                 return wrapper(func)
@@ -319,18 +330,26 @@ class KeybaseBot:
                             'channel': channel
                             }
                     if respond:
+<<<<<<< HEAD
                         try:
                             found_cmd = split(message['body'])[0]
                         except ValueError:
                             found_cmd = message['body']
                         if found_cmd in self.get_commands():
                             trigger = split(message['body'])[0]
+=======
+                        found_cmds = [cmd for cmd in self.get_commands()
+                                      if re.search(cmd, message['body'])]
+                        if len(found_cmds) > 0:
+                            trigger = found_cmds[0]
+>>>>>>> changed triggers to be regex based, and added option to hide trigger from help text
                             trigger_func = self.get_commands()[trigger]['f']
                             print('-' * 15)
                             print('Trigger found: {}'.format(trigger))
                             print('  Team: {}'.format(team))
                             print('  Channel: {}'.format(channel))
                             print('  Sender: {}'.format(message['sender']))
+                            print('  Message: {}'.format(message['body']))
                             result = trigger_func(message_data)
                             print('  Result: {}'.format(result))
 
@@ -349,16 +368,25 @@ class KeybaseBot:
                         'sender': message['sender']
                         }
                 if respond:
+<<<<<<< HEAD
                     try:
                         found_cmd = split(message['body'])[0]
                     except ValueError:
                         found_cmd = message['body']
                     if found_cmd in self.get_commands():
                         trigger = split(message['body'])[0]
+=======
+                    found_cmds = [cmd for cmd in self.get_commands()
+                                  if re.search(cmd, message['body'])]
+                    #for trigger in self.get_commands():
+                    if len(found_cmds) > 0:
+                        trigger = found_cmds[0]
+>>>>>>> changed triggers to be regex based, and added option to hide trigger from help text
                         trigger_func = self.get_commands()[trigger]['f']
                         print('-' * 15)
                         print('Trigger found: {}'.format(trigger))
                         print('  Sender: {}'.format(message['sender']))
+                        print('  Message: {}'.format(message['body']))
                         result = trigger_func(message_data)
                         print('  Result: {}'.format(result))
 
@@ -381,15 +409,16 @@ class KeybaseBot:
         '''Show available commands'''
         help_text = ''
         all_cmds = self.get_commands()
+        cmds_list = self._commands_list.copy()
+        print('all_cmds', all_cmds)
+        print('cmds_list', cmds_list)
         for cmd in all_cmds:
-            trigger = all_cmds[cmd]['command']
-            cmd_help = all_cmds[cmd]['help']
-            if all_cmds[cmd]['args']:
-                args = ' {}'.format(all_cmds[cmd]['args'])
-            else:
-                args = ''
-            help_text += '`{}{}`\n'.format(trigger, args)
-            help_text += '```    {}```\n\n'.format(cmd_help)
+            if all_cmds[cmd]['show_help']:
+                trigger = all_cmds[cmd]['command']
+                help_trigger = all_cmds[cmd]['help_trigger']
+                cmd_help = all_cmds[cmd]['help']
+                help_text += '`{}`\n'.format(help_trigger)
+                help_text += '```    {}```\n\n'.format(cmd_help)
         if message_data['type'] == 'team':
             res = self.kb.send_team_message(message_data['team'],
                                             help_text,

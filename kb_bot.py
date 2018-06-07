@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 import random
 import time
+import subprocess
 
-from shlex import split
+from shlex import split, quote
 from kb_chat_api import KeybaseChat, KeybaseBot
 
 
@@ -15,14 +16,28 @@ kb = KeybaseChat()
 bot = KeybaseBot(kb, channels)
 
 
-@bot.command('!ping')
+@bot.command('^!ping', help_trigger='!ping')
 def ping_cmd(message_data):
     """Respond with 'pong!'"""
     response_text = 'pong!'
     return bot.respond(response_text, message_data, at_mention=True)
 
 
-@bot.command('!roll', args='<dice> <sides>')
+@bot.command('(fuck|shit|ass|pussy|bitch)', show_help=False)
+def swear_cmd(message_data):
+    """Respond to swear words"""
+    response_text = 'Watch your mouth, bitch!'
+    return bot.respond(response_text, message_data, at_mention=True)
+
+
+#@bot.command('!fortune')
+#def fortune_cmd(message_data):
+#    """Read your fortune"""
+#    response_text = subprocess.check_output(['fortune', '-o']).decode('utf-8')
+#    return bot.respond(quote(response_text), message_data, at_mention=True)
+
+
+@bot.command('^!roll', help_trigger='!roll <dice> <sides>')
 def roll_cmd(message_data):
     '''Roll <dice> amount of <side>-sided dice. If <dice> and <sides> are not
     provided, default is to roll 2 6-sided dice. If <dice> and <sides> are
@@ -51,7 +66,6 @@ def roll_cmd(message_data):
     response_text += 'and `{}`, for a total of `{}`.'.format(dice[-1],
                                                              sum(dice))
     return bot.respond(response_text, message_data, at_mention=True)
-
 
 # Clear out any unread messages received while bot was offline
 bot.check_messages(respond=False)
