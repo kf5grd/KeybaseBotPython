@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 import random
 import time
-import subprocess
 
-from shlex import split, quote
+from shlex import split
 from kb_chat_api import KeybaseChat, KeybaseBot
 
 
@@ -13,38 +12,24 @@ channels = {
         }
 
 kb = KeybaseChat()
-bot = KeybaseBot(kb, channels)
+bot = KeybaseBot(kb, channels, help_command=r'^\.help', help_trigger='.help')
 
 
-@bot.command(r'^!ping', help_trigger='!ping')
+@bot.command(r'^.ping', help_trigger='.ping')
 def ping_cmd(message_data):
     """Respond with 'pong!'"""
     response_text = 'pong!'
     return bot.respond(response_text, message_data, at_mention=True)
 
 
-#@bot.command(r'^!say .*', help_trigger='!say <message>')
-def say_cmd(message_data):
-    """Respond with <message>"""
-    response_text = message_data['body'][5:]
-    return bot.respond(response_text, message_data, at_mention=False)
-
-
-#@bot.command(r'\b(fuck|shit|ass|pussy|bitch)\b', show_help=False)
+@bot.command(r'\b(fuck|shit|ass|pussy|bitch)\b', show_help=False)
 def swear_cmd(message_data):
     """Respond to swear words"""
-    response_text = 'Watch your mouth, bitch!'
+    response_text = "Please don't use that kind of language in here."
     return bot.respond(response_text, message_data, at_mention=True)
 
 
-#@bot.command(r'!fortune')
-def fortune_cmd(message_data):
-    """Read your fortune"""
-    response_text = subprocess.check_output(['fortune', '-o']).decode('utf-8')
-    return bot.respond(quote(response_text), message_data, at_mention=True)
-
-
-@bot.command(r'^!roll', help_trigger='!roll <dice> <sides>')
+@bot.command(r'^.roll', help_trigger='.roll <dice> <sides>')
 def roll_cmd(message_data):
     '''Roll <dice> amount of <side>-sided dice. If <dice> and <sides> are not
     provided, default is to roll 2 6-sided dice. If <dice> and <sides> are
