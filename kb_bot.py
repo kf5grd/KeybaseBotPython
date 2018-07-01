@@ -10,7 +10,6 @@ from kb_chat_api import KeybaseChat, KeybaseBot
 # Team channels to monitor
 channels = {
         'crbot.public': ['bots'],
-#       'crbot': ['general'],
         }
 
 kb = KeybaseChat()
@@ -25,7 +24,7 @@ def ping_cmd(message_data):
 
 
 #@bot.command(r'^!say .*', help_trigger='!say <message>')
-def ping_cmd(message_data):
+def say_cmd(message_data):
     """Respond with <message>"""
     response_text = message_data['body'][5:]
     return bot.respond(response_text, message_data, at_mention=False)
@@ -74,6 +73,7 @@ def roll_cmd(message_data):
     response_text += 'and `{}`, for a total of `{}`.'.format(dice[-1],
                                                              sum(dice))
     return bot.respond(response_text, message_data, at_mention=True)
+
 
 # Clear out any unread messages received while bot was offline
 bot.check_messages(respond=False)
