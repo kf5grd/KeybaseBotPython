@@ -3,7 +3,7 @@ import random
 import time
 
 from shlex import split
-from kb_chat_api import KeybaseChat, KeybaseBot
+from keybase_chat_api import KeybaseChat, KeybaseBot
 
 
 # Team channels to monitor
