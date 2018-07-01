@@ -361,6 +361,7 @@ class KeybaseBot:
                 if respond:
                     found_cmds = [cmd for cmd in self.get_commands()
                                   if re.search(cmd, message['body'])]
+                    #for trigger in self.get_commands():
                     if len(found_cmds) > 0:
                         trigger = found_cmds[0]
                         trigger_func = self.get_commands()[trigger]['f']
@@ -395,8 +396,7 @@ class KeybaseBot:
         print('cmds_list', cmds_list)
         for cmd in all_cmds:
             if all_cmds[cmd]['show_help']:
-                # appears to be unused, so i'm commenting this out for now
-                #trigger = all_cmds[cmd]['command']
+                trigger = all_cmds[cmd]['command']
                 help_trigger = all_cmds[cmd]['help_trigger']
                 cmd_help = all_cmds[cmd]['help']
                 help_text += '`{}`\n'.format(help_trigger)
