@@ -10,6 +10,7 @@ from kb_chat_api import KeybaseChat, KeybaseBot
 # Team channels to monitor
 channels = {
         'crbot.public': ['bots'],
+#       'crbot': ['general'],
         }
 
 kb = KeybaseChat()
@@ -23,7 +24,14 @@ def ping_cmd(message_data):
     return bot.respond(response_text, message_data, at_mention=True)
 
 
-@bot.command(r'\b(fuck|shit|ass|pussy|bitch)\b', show_help=False)
+#@bot.command(r'^!say .*', help_trigger='!say <message>')
+def ping_cmd(message_data):
+    """Respond with <message>"""
+    response_text = message_data['body'][5:]
+    return bot.respond(response_text, message_data, at_mention=False)
+
+
+#@bot.command(r'\b(fuck|shit|ass|pussy|bitch)\b', show_help=False)
 def swear_cmd(message_data):
     """Respond to swear words"""
     response_text = 'Watch your mouth, bitch!'
@@ -31,10 +39,10 @@ def swear_cmd(message_data):
 
 
 #@bot.command(r'!fortune')
-#def fortune_cmd(message_data):
-#    """Read your fortune"""
-#    response_text = subprocess.check_output(['fortune', '-o']).decode('utf-8')
-#    return bot.respond(quote(response_text), message_data, at_mention=True)
+def fortune_cmd(message_data):
+    """Read your fortune"""
+    response_text = subprocess.check_output(['fortune', '-o']).decode('utf-8')
+    return bot.respond(quote(response_text), message_data, at_mention=True)
 
 
 @bot.command(r'^!roll', help_trigger='!roll <dice> <sides>')
