@@ -75,6 +75,7 @@ def roll_cmd(message_data):
     return bot.respond(response_text, message_data, at_mention=True)
 
 
+kb.send_user_message('dxb', 'Bot online')
 # Clear out any unread messages received while bot was offline
 bot.check_messages(respond=False)
 
