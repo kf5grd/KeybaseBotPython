@@ -15,7 +15,7 @@ kb = KeybaseChat()
 bot = KeybaseBot(kb, channels, help_command=r'^\.help', help_trigger='.help')
 
 
-@bot.command(r'^.ping', help_trigger='.ping')
+@bot.command(r'^\.ping', help_trigger='.ping')
 def ping_cmd(message_data):
     """Respond with 'pong!'"""
     response_text = 'pong!'
@@ -29,7 +29,7 @@ def swear_cmd(message_data):
     return bot.respond(response_text, message_data, at_mention=True)
 
 
-@bot.command(r'^.roll', help_trigger='.roll <dice> <sides>')
+@bot.command(r'^\.roll', help_trigger='.roll <dice> <sides>')
 def roll_cmd(message_data):
     '''Roll <dice> amount of <side>-sided dice. If <dice> and <sides> are not
     provided, default is to roll 2 6-sided dice. If <dice> and <sides> are
