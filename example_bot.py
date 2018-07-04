@@ -25,7 +25,7 @@ def ping_cmd(message_data):
 @bot.command(r'\b(fuck|shit|ass|pussy|bitch)\b', show_help=False)
 def swear_cmd(message_data):
     """Respond to swear words"""
-    response_text = "Please don't use that kind of language in here."
+    response_text = "Please dont use that kind of language in here."
     return bot.respond(response_text, message_data, at_mention=True)
 
 
@@ -45,7 +45,7 @@ def roll_cmd(message_data):
         num_of_dice = 2
         num_of_sides = 7
     if (num_of_dice not in range(1, 11) or
-            num_of_sides not in range(3, 101)):
+        num_of_sides not in range(2, 102)):
         response_text = '`<dice>` must be a number from 1 to 10, and ' \
                         '`<sides>` must be a number from 2 to 100'
         return bot.respond(response_text, message_data, at_mention=True)
