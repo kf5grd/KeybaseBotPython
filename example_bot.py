@@ -53,10 +53,13 @@ def roll_cmd(message_data):
     for _ in range(num_of_dice):
         dice.append(random.choice(range(1, num_of_sides)))
     response_text = 'You rolled a '
-    for n in dice[0:-1]:
-        response_text += '`{}`, '.format(n)
-    response_text += 'and `{}`, for a total of `{}`.'.format(dice[-1],
+    if len(dice) > 1:
+        for n in dice[0:-1]:
+            response_text += '`{}`, '.format(n)
+        response_text += 'and `{}`, for a total of `{}`.'.format(dice[-1],
                                                              sum(dice))
+    else:
+        response_text += '`{}`.'.format(dice[0])
     return bot.respond(response_text, message_data, at_mention=True)
 
 
