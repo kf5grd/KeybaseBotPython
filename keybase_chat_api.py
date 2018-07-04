@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: UTF-8 -*-
 import json
 import re
 import subprocess
@@ -336,13 +337,13 @@ class KeybaseBot:
                             trigger = found_cmds[0]
                             trigger_func = self.get_commands()[trigger]['f']
                             print('-' * 15)
-                            print('Trigger found: {}'.format(trigger))
+                            print('Trigger found: {}'.format(trigger).encode('unicode-escape'))
                             print('  Team: {}'.format(team))
-                            print('  Channel: {}'.format(channel))
+                            print('  Channel: {}'.format(channel).encode('unicode-escape'))
                             print('  Sender: {}'.format(message['sender']))
-                            print('  Message: {}'.format(message['body']))
+                            print('  Message: {}'.format(message['body']).encode('unicode-escape'))
                             result = trigger_func(message_data)
-                            print('  Result: {}'.format(result))
+                            print('  Result: {}'.format(result).encode('unicode-escape'))
 
         # Respond to private messages
         users = [
@@ -366,11 +367,11 @@ class KeybaseBot:
                         trigger = found_cmds[0]
                         trigger_func = self.get_commands()[trigger]['f']
                         print('-' * 15)
-                        print('Trigger found: {}'.format(trigger))
-                        print('  Sender: {}'.format(message['sender']))
-                        print('  Message: {}'.format(message['body']))
+                        print('Trigger found: {}'.format(trigger).encode('unicode-escape'))
+                        print('  Sender: {}'.format(message['sender']).encode('unicode-escape'))
+                        print('  Message: {}'.format(message['body']).encode('unicode-escape'))
                         result = trigger_func(message_data)
-                        print('  Result: {}'.format(result))
+                        print('  Result: {}'.format(result).encode('unicode-escape'))
 
     def respond(self, response_text, message_data, at_mention=False):
         if message_data['type'] == 'team':

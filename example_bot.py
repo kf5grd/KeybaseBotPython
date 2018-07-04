@@ -22,6 +22,14 @@ def ping_cmd(message_data):
     return bot.respond(response_text, message_data, at_mention=True)
 
 
+@bot.command(r'^\.say .*', show_help=False)
+def say_cmd(message_data):
+    """Respond with message"""
+    if message_data['sender'] == 'dxb':
+        response_text = message_data['body'][5:]
+        return bot.respond(response_text, message_data, at_mention=True)
+
+
 @bot.command(r'\b(fuck|shit|ass|pussy|bitch)\b', show_help=False)
 def swear_cmd(message_data):
     """Respond to swear words"""
