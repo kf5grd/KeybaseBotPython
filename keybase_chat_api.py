@@ -3,6 +3,7 @@
 import json
 import re
 import subprocess
+import sys
 
 from shlex import split
 
@@ -264,7 +265,8 @@ class KeybaseBot:
                  keybase_api,
                  channels,
                  help_command='^!help',
-                 help_trigger='!help'):
+                 help_trigger='!help',
+                 log_to_screen=True):
         self._help_trigger = help_trigger
         self.command = self._command_registry()
         self.kb = keybase_api
@@ -277,6 +279,7 @@ class KeybaseBot:
                 'help': self.help_cmd.__doc__
                 }
         self.commands = self.get_commands()
+        self.log_to_screen = log_to_screen
 
     def _command_registry(self, *args):
         self._commands = {}
@@ -308,6 +311,13 @@ class KeybaseBot:
     def get_commands(self):
         return self._commands.copy()
 
+    def _write_log(self, *log_message, error=False, **kwargs):
+        if self.log_to_screen:
+            if not error:
+                print(*log_message, **kwargs)
+            else:
+                print(*log_message, file=sys.stderr, **kwargs)
+
     def check_messages(self, respond=True):
         conversations = self.kb.get_conversations()
 
@@ -336,14 +346,23 @@ class KeybaseBot:
                         if len(found_cmds) > 0:
                             trigger = found_cmds[0]
                             trigger_func = self.get_commands()[trigger]['f']
-                            print('-' * 15)
-                            print('Trigger found: {}'.format(trigger).encode('unicode-escape'))
-                            print('  Team: {}'.format(team))
-                            print('  Channel: {}'.format(channel).encode('unicode-escape'))
-                            print('  Sender: {}'.format(message['sender']))
-                            print('  Message: {}'.format(message['body']).encode('unicode-escape'))
                             result = trigger_func(message_data)
-                            print('  Result: {}'.format(result).encode('unicode-escape'))
+                            log_message = '-' * 15 + '\n'
+                            log_message += (
+                                'Trigger found: {trigger}\n'
+                                '  - Team: {team}\n'
+                                '  - Channel: {channel}\n'
+                                '  - Sender: {sender}\n'
+                                '  - Message: {message}\n'
+                                '  - Result -\n'
+                                '    {result}\n')
+                            self._write_log(log_message.format(
+                                trigger=trigger,
+                                team=team,
+                                channel=channel,
+                                sender=message['sender'],
+                                message=message['body'],
+                                result=result)).encode('unicode-escape')
 
         # Respond to private messages
         users = [
@@ -365,12 +384,19 @@ class KeybaseBot:
                     if len(found_cmds) > 0:
                         trigger = found_cmds[0]
                         trigger_func = self.get_commands()[trigger]['f']
-                        print('-' * 15)
-                        print('Trigger found: {}'.format(trigger).encode('unicode-escape'))
-                        print('  Sender: {}'.format(message['sender']).encode('unicode-escape'))
-                        print('  Message: {}'.format(message['body']).encode('unicode-escape'))
                         result = trigger_func(message_data)
-                        print('  Result: {}'.format(result).encode('unicode-escape'))
+                        log_message = '-' * 15 + '\n'
+                        log_message += (
+                            'Trigger found: {trigger}\n',
+                            '  - Sender: {sender}\n',
+                            '  - Message: {message}\n',
+                            '  - Result -\n',
+                            '    {result}\n')
+                        log_message = log_message.format(
+                            trigger=trigger,
+                            sender=message['sender'],
+                            message=message['body'],
+                            result=result).encode('unicode-escape')
 
     def respond(self, response_text, message_data, at_mention=False):
         if message_data['type'] == 'team':
@@ -392,8 +418,8 @@ class KeybaseBot:
         help_text = ''
         all_cmds = self.get_commands()
         cmds_list = self._commands_list.copy()
-        print('all_cmds', all_cmds)
-        print('cmds_list', cmds_list)
+        self._write_log('all_cmds', all_cmds)
+        self._write_log('cmds_list', cmds_list)
         for cmd in all_cmds:
             if all_cmds[cmd]['show_help']:
                 help_trigger = all_cmds[cmd]['help_trigger']
