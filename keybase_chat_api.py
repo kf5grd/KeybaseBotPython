@@ -264,7 +264,7 @@ class KeybaseBot:
     def __init__(self,
                  keybase_api,
                  channels,
-                 help_command='^!help',
+                 help_command=r'^!help$',
                  help_trigger='!help',
                  log_to_screen=True):
         self._help_trigger = help_trigger

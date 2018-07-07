@@ -12,10 +12,10 @@ channels = {
         }
 
 kb = KeybaseChat()
-bot = KeybaseBot(kb, channels, help_command=r'^\.help', help_trigger='.help')
+bot = KeybaseBot(kb, channels, help_command=r'^\.help$', help_trigger='.help')
 
 
-@bot.command(r'^\.ping', help_trigger='.ping')
+@bot.command(r'^\.ping$', help_trigger='.ping')
 def ping_cmd(message_data):
     """Respond with 'pong!'"""
     response_text = 'pong!'
@@ -57,7 +57,7 @@ def roll_cmd(message_data):
         for n in dice[0:-1]:
             response_text += '`{}`, '.format(n)
         response_text += 'and `{}`, for a total of `{}`.'.format(dice[-1],
-                                                             sum(dice))
+                                                                 sum(dice))
     else:
         response_text += '`{}`.'.format(dice[0])
     return bot.respond(response_text, message_data, at_mention=True)
