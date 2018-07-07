@@ -312,11 +312,15 @@ class KeybaseBot:
         return self._commands.copy()
 
     def _write_log(self, *log_message, error=False, **kwargs):
+        clean_messages = ()
+        for message in log_message:
+            clean_message = str(message).encode('unicode-escape')
+            clean_messages += (str(clean_message), )
         if self.log_to_screen:
             if not error:
-                print(*log_message, **kwargs)
+                print(*clean_messages, **kwargs)
             else:
-                print(*log_message, file=sys.stderr, **kwargs)
+                print(*clean_messages, file=sys.stderr, **kwargs)
 
     def check_messages(self, respond=True):
         conversations = self.kb.get_conversations()
@@ -347,22 +351,16 @@ class KeybaseBot:
                             trigger = found_cmds[0]
                             trigger_func = self.get_commands()[trigger]['f']
                             result = trigger_func(message_data)
-                            log_message = '-' * 15 + '\n'
-                            log_message += (
-                                'Trigger found: {trigger}\n'
-                                '  - Team: {team}\n'
-                                '  - Channel: {channel}\n'
-                                '  - Sender: {sender}\n'
-                                '  - Message: {message}\n'
-                                '  - Result -\n'
-                                '    {result}\n')
-                            self._write_log(log_message.format(
-                                trigger=trigger,
-                                team=team,
-                                channel=channel,
-                                sender=message['sender'],
-                                message=message['body'],
-                                result=result)).encode('unicode-escape')
+                            log_message = (
+                                '-' * 15,
+                                'Trigger found: {}'.format(trigger),
+                                '  - Team: {}'.format(team),
+                                '  - Channel: {}'.format(channel),
+                                '  - Sender: {}'.format(message['sender']),
+                                '  - Message: {}'.format(message['body']),
+                                '  - Result -',
+                                '    {}'.format(result))
+                            self._write_log(*log_message, sep='\n', end='\n\n')
 
         # Respond to private messages
         users = [
@@ -385,18 +383,14 @@ class KeybaseBot:
                         trigger = found_cmds[0]
                         trigger_func = self.get_commands()[trigger]['f']
                         result = trigger_func(message_data)
-                        log_message = '-' * 15 + '\n'
-                        log_message += (
-                            'Trigger found: {trigger}\n',
-                            '  - Sender: {sender}\n',
-                            '  - Message: {message}\n',
-                            '  - Result -\n',
-                            '    {result}\n')
-                        log_message = log_message.format(
-                            trigger=trigger,
-                            sender=message['sender'],
-                            message=message['body'],
-                            result=result).encode('unicode-escape')
+                        log_message = (
+                            '-' * 15,
+                            'Trigger found: {}'.format(trigger),
+                            '  - Sender: {}'.format(message['sender']),
+                            '  - Message: {}'.format(message['body']),
+                            '  - Result -',
+                            '    {}'.format(result))
+                        self._write_log(*log_message, sep='\n', end='\n\n')
 
     def respond(self, response_text, message_data, at_mention=False):
         if message_data['type'] == 'team':
